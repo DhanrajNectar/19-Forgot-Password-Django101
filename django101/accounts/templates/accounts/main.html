@@ -1,3 +1,5 @@
+{% load static %}
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -8,30 +10,8 @@
     <title>{% block title %}{% endblock %}</title>
     {#import boostrap css   #}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    	<style>
+    <link rel="stylesheet" type="text/css" href="{% static '/css/main.css' %}">
 
-		#logo{
-		}
-
-		body{
-			background-color: #ebeff5;
-		}
-
-
-		#total-orders{
-			background-color: #4cb4c7;
-		}
-
-
-		#orders-delivered{
-			background-color: #7abecc;
-		}
-
-		#orders-pending{
-			background-color: #7CD1C0;
-		}
-
-	</style>
 </head>
 <body>
     {% include "accounts/navbar.html" %}

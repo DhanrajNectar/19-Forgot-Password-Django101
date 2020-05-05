@@ -1,26 +1,69 @@
+from django.contrib.auth.decorators import login_required
 from django.forms import inlineformset_factory
 from django.shortcuts import render, redirect
-from .forms import OrderForm
+from .forms import OrderForm, CreateUserForm
 from .models import *
 from .filters import OrderFilter
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 
+
+
+def registerPage(request):
+    if request.user.is_authenticated:
+        return redirect('')
+    else:
+        form = CreateUserForm()
+        if request.method == 'POST':
+            form = CreateUserForm(request.POST)
+            if form.is_valid():
+                form.save()
+                user = form.cleaned_data.get('username')
+                messages.success(request, 'Account was created for ' + user)
+                return redirect('dashboard')
+        context = {'form': form}
+        return render(request, 'accounts/register.html', context)
+
+
+def loginPage(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    else:
+        if request.method == 'POST':
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                login(request, user)
+                return redirect('dashboard')
+            else:
+                messages.info(request, 'Username OR password is incorrect')
+
+        context = {}
+        return render(request, 'accounts/login.html', context)
+
+
+def logoutUser(request):
+    logout(request)
+    return redirect('login')
 
 
 # Create your views here.
-
 def home(request):
     return render(request, 'accounts/home.html')
 
-
+@login_required()
 def products(request):
     products = Product.objects.all()
     return render(request, 'accounts/products.html', {'products': products})
 
-
+@login_required()
 def customer(request, pk_test):
-    customer = Customer.objects.get(id=pk_test) # ambil customer berdasarkan id
-    orders = customer.order_set.all() # ambil order berdasarkan customer
-    order_count = orders.count() # menghitung jumlah orderan tiap customer
+    customer = Customer.objects.get(id=pk_test)  # ambil customer berdasarkan id
+    orders = customer.order_set.all()  # ambil order berdasarkan customer
+    order_count = orders.count()  # menghitung jumlah orderan tiap customer
 
     myFilter = OrderFilter(request.GET, queryset=orders)
     orders = myFilter.qs
@@ -29,7 +72,7 @@ def customer(request, pk_test):
                }
     return render(request, 'accounts/customer.html', context)
 
-
+@login_required
 def dashboard(request):
     customers = Customer.objects.all()
     total_customer = customers.count()

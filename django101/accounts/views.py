@@ -1,9 +1,9 @@
 from django.forms import inlineformset_factory
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
-
 from .forms import OrderForm
 from .models import *
+from .filters import OrderFilter
+
 
 
 # Create your views here.
@@ -18,11 +18,15 @@ def products(request):
 
 
 def customer(request, pk_test):
-    customer = Customer.objects.get(id=pk_test)
-    orders = customer.order_set.all()
-    order_count = orders.count()
+    customer = Customer.objects.get(id=pk_test) # ambil customer berdasarkan id
+    orders = customer.order_set.all() # ambil order berdasarkan customer
+    order_count = orders.count() # menghitung jumlah orderan tiap customer
 
-    context = {'customer': customer, 'orders': orders, 'order_count': order_count}
+    myFilter = OrderFilter(request.GET, queryset=orders)
+    orders = myFilter.qs
+    context = {'customer': customer, 'orders': orders, 'order_count': order_count,
+               'myFilter': myFilter
+               }
     return render(request, 'accounts/customer.html', context)
 
 

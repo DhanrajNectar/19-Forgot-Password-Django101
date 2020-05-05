@@ -54,12 +54,12 @@ def logoutUser(request):
 def home(request):
     return render(request, 'accounts/home.html')
 
-@login_required()
+@login_required(login_url='login')
 def products(request):
     products = Product.objects.all()
     return render(request, 'accounts/products.html', {'products': products})
 
-@login_required()
+@login_required(login_url='login')
 def customer(request, pk_test):
     customer = Customer.objects.get(id=pk_test)  # ambil customer berdasarkan id
     orders = customer.order_set.all()  # ambil order berdasarkan customer
@@ -72,7 +72,7 @@ def customer(request, pk_test):
                }
     return render(request, 'accounts/customer.html', context)
 
-@login_required
+@login_required(login_url='login')
 def dashboard(request):
     customers = Customer.objects.all()
     total_customer = customers.count()
@@ -91,7 +91,7 @@ def dashboard(request):
     }
     return render(request, 'accounts/dashboard.html', context)
 
-
+@login_required(login_url='login')
 def createOrder(request, pk):
     OrderFormSet = inlineformset_factory(Customer, Order, fields=('product', 'status'), extra=10)
     customer = Customer.objects.get(id=pk)
@@ -107,7 +107,7 @@ def createOrder(request, pk):
     context = {'form': formset}
     return render(request, 'accounts/order_form.html', context)
 
-
+@login_required(login_url='login')
 def updateOrder(request, pk):
     order = Order.objects.get(id=pk)
     form = OrderForm(instance=order)
@@ -121,7 +121,7 @@ def updateOrder(request, pk):
     context = {'form': form}
     return render(request, 'accounts/order_form.html', context)
 
-
+@login_required(login_url='login')
 def delete_order(request, pk):
     order = Order.objects.get(id=pk)
     if request.method == 'POST':

@@ -25,6 +25,12 @@ def registerPage(request):
             username = form.cleaned_data.get('username')
             group = Group.objects.get(name='customer')
             print("GRoup :", group)
+
+            # Added username after video because of error returning customer name if not added
+            Customer.objects.create(
+                user=user,
+                name=user.username,
+            )
             user.groups.add(group)
             messages.success(request, 'Account was created for ' + username)
             return redirect('login')
@@ -151,5 +157,14 @@ def delete_order(request, pk):
 
 
 def userPage(request):
-    context = {}
+    orders = request.user.customer.order_set.all()
+    total_orders = orders.count()
+    delivered = orders.filter(status='Delivered').count()
+    pending = orders.filter(status='Pending').count()
+
+    context = {'orders': orders,
+               'total_orders': total_orders,
+               'delivered': delivered,
+               'pending': pending,
+               }
     return render(request, 'accounts/user.html', context)

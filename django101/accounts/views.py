@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.forms import inlineformset_factory
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from .decorators import unauthenticated_user, admin_only, allowed_users
@@ -19,10 +20,14 @@ def registerPage(request):
     if request.method == 'POST':
         form = CreateUserForm(request.POST)
         if form.is_valid():
-            form.save()
-            user = form.cleaned_data.get('username')
-            messages.success(request, 'Account was created for ' + user)
-            return redirect('dashboard')
+            user = form.save()
+            print("user :", user )
+            username = form.cleaned_data.get('username')
+            group = Group.objects.get(name='customer')
+            print("GRoup :", group)
+            user.groups.add(group)
+            messages.success(request, 'Account was created for ' + username)
+            return redirect('login')
     context = {'form': form}
     return render(request, 'accounts/register.html', context)
 
@@ -38,6 +43,7 @@ def loginPage(request):
         if user is not None:
             login(request, user)
             return redirect('dashboard')
+            # return HttpResponse("syawal");
         else:
             messages.info(request, 'Username OR password is incorrect')
 
